@@ -4,17 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 
-# ==============================================================================
 # 1. KONFIGURASI HALAMAN & JUDUL
-# ==============================================================================
 st.set_page_config(page_title="Simulasi Double Pendulum", layout="wide")
 st.title("Simulasi Double Pendulum")
 st.caption("Persamaan gerak berbasis Metode Lagrange & integrasi numerik Runge-Kutta Orde 4 (tanpa gaya gesek)")
 
-
-# ==============================================================================
-# 2. FUNGSI PERSAMAAN GERAK DARI METODE LAGRANGE (FROM SCRATCH)
-# ==============================================================================
+# 2. FUNGSI PERSAMAAN GERAK DARI METODE LAGRANGE
 # State berisi 4 nilai: [theta1, omega1, theta2, omega2]
 # - theta1, theta2 : sudut simpangan batang 1 & 2 (radian)
 # - omega1, omega2 : kecepatan sudut (d(theta)/dt dalam rad/s)
@@ -44,10 +39,7 @@ def hitung_turunan_lagrange(state, m1, m2, l1, l2, I1, I2, g):
 
     return np.array([omega1, alpha1, omega2, alpha2], dtype=float)
 
-
-# ==============================================================================
 # 3. METODE RUNGE-KUTTA ORDE 4 (RK4) MANUAL PER LANGKAH WAKTU dt
-# ==============================================================================
 def rk4_satu_langkah(state, dt, m1, m2, l1, l2, I1, I2, g):
     k1 = hitung_turunan_lagrange(state, m1, m2, l1, l2, I1, I2, g)
     k2 = hitung_turunan_lagrange(state + 0.5 * dt * k1, m1, m2, l1, l2, I1, I2, g)
@@ -56,10 +48,7 @@ def rk4_satu_langkah(state, dt, m1, m2, l1, l2, I1, I2, g):
 
     return state + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
 
-
-# ==============================================================================
 # 4. PANEL PARAMETER & KONTROL
-# ==============================================================================
 st.sidebar.header("Parameter & Kontrol")
 
 # Nilai default mengikuti contoh di slide simulasi
@@ -102,15 +91,10 @@ def reset_simulasi():
     st.session_state.hist_th1 = [th1_0]
     st.session_state.hist_th2 = [th2_0]
 
-
-# Jika baru buka halaman atau parameter/waktu_berhenti diubah, kembali ke kondisi siap (0.00 s)
 if "state_curr" not in st.session_state or st.session_state.config_kunci != config_kunci:
     reset_simulasi()
 
-
-# ==============================================================================
 # 5. TOMBOL KONTROL (START / CONTINUE-PAUSE / RESET)
-# ==============================================================================
 kol_btn1, kol_btn2, kol_btn3, kol_info = st.columns([1, 1.2, 1, 3])
 
 with kol_btn1:
@@ -142,10 +126,7 @@ with kol_info:
 
     st.markdown(f"**Status:** {status_teks} | **Waktu:** `{st.session_state.t_curr:.2f} s` / `{waktu_berhenti:.1f} s`")
 
-
-# ==============================================================================
 # 6. AREA TAMPILAN UTAMA (GRAFIK KIRI & ANIMASI BANDUL KANAN)
-# ==============================================================================
 area_grafik_kiri, area_bandul_kanan = st.columns([1.25, 1.0])
 
 with area_grafik_kiri:
@@ -156,10 +137,7 @@ with area_bandul_kanan:
     st.subheader("Simulasi Double Pendulum")
     slot_bandul = st.empty()
 
-
-# ==============================================================================
 # 7. DAFTAR NILAI TETA1 & TETA2 (DALAM RADIAN)
-# ==============================================================================
 st.markdown("### Nilai Sudut (radian)")
 kol_teta1, kol_teta2 = st.columns(2)
 with kol_teta1:
@@ -168,7 +146,6 @@ with kol_teta1:
 with kol_teta2:
     st.caption("Teta2 (rad)")
     slot_list2 = st.empty()
-
 
 def gambar_frame(t_arr, th1_arr, th2_arr):
     # --- Grafik posisi sudut (rad) terhadap waktu ---
@@ -215,11 +192,7 @@ def gambar_frame(t_arr, th1_arr, th2_arr):
     slot_list1.code("\n".join(cuplikan_1), language=None)
     slot_list2.code("\n".join(cuplikan_2), language=None)
 
-
-# ==============================================================================
 # 8. EKSEKUSI SIMULASI SETELAH TOMBOL START DITEKAN
-# ==============================================================================
-# Menggambar kondisi saat ini (pada awal akan tampil di 0.00 s dan diam menunggu Start)
 gambar_frame(
     np.array(st.session_state.hist_t),
     np.array(st.session_state.hist_th1),
@@ -228,7 +201,6 @@ gambar_frame(
 
 # Hanya berjalan jika tombol Start ditekan (running == True) dan belum mencapai waktu_berhenti
 if st.session_state.running and st.session_state.t_curr < waktu_berhenti:
-    # Semakin besar Hz, jeda antar frame semakin kecil (animasi lebih cepat)
     jeda_detik = max(0.01, min(0.08, 2.0 / float(frekuensi_hz)))
     sub_steps = max(1, int(round(0.05 / dt)))
 
